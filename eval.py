@@ -131,6 +131,9 @@ def eval(configs):
                         video_objects[videonames[i]][obj_id]['seq_adjs'].append(torch.from_numpy(adj).float().to(device))
                         video_objects[videonames[i]][obj_id]['seq_points'].append(keypoints[np.where(object_filter==1)[0]].float().to(device))
                         video_objects[videonames[i]][obj_id]['seq_descs'].append(descriptors[np.where(object_filter==1)[0]].float().to(device))
+                        print(iteration)
+            if iteration > 195:
+                break
         
         os.makedirs(configs['save_dir'], exist_ok=True)
         pickle_write(os.path.join(configs['save_dir'], 'video_objects.pkl'), video_objects)
@@ -170,7 +173,10 @@ def eval(configs):
                         objects[obj_id]['q_obj_descs'] = iter_obj_descs
 
                 elif configs['method'] in ['netvlad', 'seqnet', 'seqnet_1']:
-
+                    
+                    print("Type iter_desc = ", type(iter_descs))
+                    print("Type iter_desc[0] = ", type(iter_descs[0]))
+                    print("Shape iter_desc = ", iter_descs[0].shape)
                     iter_obj_descs = netvlad_model(iter_descs)
 
                     # SeqNet

@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../../x_view/x-view-scratch/utils"
+		},
+		{
+			"path": "../../../../x_view/x-view-scratch/x-view-python/graphVPR-python"
+		}
+	],
+	"settings": {}
+}
