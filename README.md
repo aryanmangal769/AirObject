@@ -34,8 +34,10 @@ Simply run the following commands:
 ```bash
 conda create --channel conda-forge --name airobj --file ./AirObject/conda_requirements.txt
 conda activate airobj
-conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolkit=10.2 -c pytorch
+conda install pytorch==1.8.0 torchaudio==0.8.0 cudatoolkit=10.2 -c pytorch
 pip install pyyaml opencv-python scipy tqdm pycocotools
+# Editied this due to some error faced
+pip install torchvision==0.9.0 tensorboard
 
 cd ./AirObject/cocoapi/PythonAPI
 python setup.py build
