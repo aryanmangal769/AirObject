@@ -39,6 +39,7 @@ class ObjectDescriptor(nn.Module):
       locations.append(w)
 
     batch_features = torch.stack(batch_features)
+    
     batch_features = nn.functional.normalize(batch_features, p=2, dim=-1)
 
     return batch_features, locations
@@ -81,7 +82,6 @@ class GCN(nn.Module):
     x = self.relu(self.tran1(x))
 
     x, w = self.sparsification(x)
-
     return x, w
 
 

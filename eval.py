@@ -174,10 +174,8 @@ def eval(configs):
 
                 elif configs['method'] in ['netvlad', 'seqnet', 'seqnet_1']:
                     
-                    print("Type iter_desc = ", type(iter_descs))
-                    print("Type iter_desc[0] = ", type(iter_descs[0]))
-                    print("Shape iter_desc = ", iter_descs[0].shape)
                     iter_obj_descs = netvlad_model(iter_descs)
+                    
 
                     # SeqNet
                     if configs['method'] == 'seqnet':

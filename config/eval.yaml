@@ -6,7 +6,7 @@ resume: True # Load pre-computed Video Object Dictionary
 video_objects_path: './experiments/OVIS/video_objects.pkl' # Path to Video Object Dictionary
 save_dir: './experiments/OVIS' # Path to save results
 ###
-method: 'netvlad' # ['2d_baseline', '3d_baseline', 'netvlad', 'seqnet', 'airobj', 'seqnet_1', 'airobj_1']
+method: '3d_baseline' # ['2d_baseline', '3d_baseline', 'netvlad', 'seqnet', 'airobj', 'seqnet_1', 'airobj_1']
 # 'airobj_1': AirObject (s_l = 1), 'seqnet_1': SeqNet (s_l = 1)
 graph_model_path: './models/gcn_model.pth'
 netvlad_model_path: './models/netvlad_model.pth'
