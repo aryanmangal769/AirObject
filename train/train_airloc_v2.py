@@ -19,51 +19,13 @@ from tqdm import tqdm
 from model.build_model import build_gcn, build_netvlad, build_seqnet, build_airobj
 from model.graph_models.gcn import GCN
 
-from datasets.mp3d_airloc.mp3d_triplet import mp3d
+from datasets.mp3d_airloc.mp3d_triplet_v2 import mp3d
 from datasets.utils.batch_collator import eval_custom_collate
 
 from statistics import mean
 
 import time
 
-
-
-def images_to_point_decs(batch_image,device):
-    """This function is specific for the case where batch of imgaes is iterable in form og single image"""
-    
-    batch_objects = []
-    
-    for image in batch_image:  #batch
-        if len(image)!=3:
-            #The case in which rgb and/or depth data in input along with this 
-            print("images_to_obj_decs not implement error !!")
-
-        ann_masks, points, roomname = image[0], image[1], image[2]
-        
-        keypoints = points['points']
-        descriptors = points['point_descs']
-
-        
-        image_objects = {}
-        image_objects['points'] = []
-        image_objects['descs'] = []
-        image_objects['ids'] = [] 
-        image_objects['room_image_name'] = roomname
-
-        for a in range(len(ann_masks)):
-            ann_mask = ann_masks[a]['mask']
-            object_filter = ann_mask[keypoints[:,0].T,keypoints[:,1].T]
-
-            np_obj_pts = keypoints[np.where(object_filter==1)[0]].numpy()
-
-            obj_id = str(ann_masks[a]['id']) 
-            
-            image_objects['points'].append(keypoints[np.where(object_filter==1)[0]].float().to(device))
-            image_objects['descs'].append(descriptors[np.where(object_filter==1)[0]].float().to(device))
-            image_objects['ids'].append(obj_id) 
-        
-        batch_objects.append(image_objects)
-    return batch_objects
 
 def points_to_obj_desc(batch_objects,netvlad_model):
     batch_decs = []
@@ -117,7 +79,7 @@ def train(configs):
     nhid = train_config['hidden_dim']
     nclass = train_config['nout']
     
-    configs['num_gpu'] = [1]
+    configs['num_gpu'] = [0,1]
     configs['public_model'] = 0
     
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -135,12 +97,14 @@ def train(configs):
         np.random.shuffle(indices)
     train_indices, val_indices = indices[split:], indices[:split]
 
-    # Creating PT data samplers and loaders:
     train_sampler = SubsetRandomSampler(train_indices)
     valid_sampler = SubsetRandomSampler(val_indices)
 
-    train_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 4,sampler=train_sampler)
-    test_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 4,sampler=valid_sampler)
+    # train_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 4,sampler=train_sampler)
+    # test_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 4,sampler=valid_sampler)
+        
+    train_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,sampler=train_sampler)
+    test_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,sampler=valid_sampler)
         
     netvlad_model = build_netvlad(configs)
     netvlad_model.eval()
@@ -160,14 +124,7 @@ def train(configs):
     sum_iter = 0
     for epoch in tqdm(range(epochs), desc='train'):
         train_accuracy = []
-        for step, (anchor_img, positive_img, negative_img) in enumerate(tqdm(train_loader)):
-            
-            anchor_pts = images_to_point_decs(anchor_img,device)
-            positive_pts = images_to_point_decs(positive_img,device)
-            negative_pts = images_to_point_decs(negative_img,device)
-            
-            # print(["ERROR" for i in range(len(anchor_pts)) if anchor_pts[i]["room_image_name"][0]==negative_pts[i]["room_image_name"][0]])
-            # print(["ERROR" for i in range(len(anchor_pts)) if anchor_pts[i]["room_image_name"][0]!=positive_pts[i]["room_image_name"][0]])
+        for step, (anchor_pts, positive_pts, negative_pts) in enumerate(tqdm(train_loader)):
             
             anchor_objs = points_to_obj_desc(anchor_pts,netvlad_model)
             positive_objs = points_to_obj_desc(positive_pts,netvlad_model)
@@ -193,14 +150,7 @@ def train(configs):
         print("Train_accuracy : ", mean(train_accuracy) )
             
         test_accuracy = []
-        for step, (anchor_img, positive_img, negative_img) in enumerate(tqdm(test_loader)):
-            
-            anchor_pts = images_to_point_decs(anchor_img,device)
-            positive_pts = images_to_point_decs(positive_img,device)
-            negative_pts = images_to_point_decs(negative_img,device)
-            
-            # print(["ERROR" for i in range(len(anchor_pts)) if anchor_pts[i]["room_image_name"][0]==negative_pts[i]["room_image_name"][0]])
-            # print(["ERROR" for i in range(len(anchor_pts)) if anchor_pts[i]["room_image_name"][0]!=positive_pts[i]["room_image_name"][0]])
+        for step, (anchor_pts, positive_pts, negative_pts) in enumerate(tqdm(test_loader)):
             
             anchor_objs = points_to_obj_desc(anchor_pts,netvlad_model)
             positive_objs = points_to_obj_desc(positive_pts,netvlad_model)
