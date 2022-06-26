@@ -9,6 +9,7 @@ from model.mask_rcnn.mask_rcnn import MaskRCNN
 from model.backbone.fcn import VGGNet
 from model.superpoint.vgg_like import VggLike
 from model.graph_models.object_descriptor import ObjectDescriptor
+from model.graph_models.room_descriptor import RoomDescriptor
 from model.netvlad import NetVLADDescriptor
 from model.seqnet import SeqNet
 from model.airobject import AirObject
@@ -107,6 +108,33 @@ def build_gcn(configs):
   pretrained_model_path = configs['graph_model_path']
 
   model = ObjectDescriptor(gcn_config)
+
+  if use_gpu:
+    model = model.to(torch.device('cuda:{}'.format(num_gpu[0])))
+    model = torch.nn.DataParallel(model, device_ids=num_gpu)
+    print("Finish cuda loading")
+
+  if pretrained_model_path != "":
+    model_dict = model.state_dict()
+    pretrained_dict = torch.load(pretrained_model_path, map_location=torch.device('cuda:{}'.format(num_gpu[0])))
+    pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+    model_dict.update(pretrained_dict)
+    if use_gpu:
+      model.load_state_dict(model_dict)
+    else:
+      print("loading on cpu")
+      model.load_state_dict(torch.load(pretrained_model_path, map_location=torch.device('cpu')))
+    print("load model from {}".format(pretrained_model_path))
+
+  return model
+
+def build_airloc(configs):
+  num_gpu = configs['num_gpu']
+  use_gpu = (len(num_gpu) > 0)
+  gcn_config = configs['model']['airloc']
+  pretrained_model_path = configs['airloc_model_path']
+
+  model = RoomDescriptor(gcn_config)
 
   if use_gpu:
     model = model.to(torch.device('cuda:{}'.format(num_gpu[0])))

@@ -9,3 +9,7 @@ __pycache__/
 # Repo specific
 exp_config/
 prototyping/
+
+experiments/
+logs/
+data_json/

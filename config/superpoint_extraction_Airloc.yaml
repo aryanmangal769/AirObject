@@ -1,5 +1,5 @@
-points_dir: '/home/aryan/Mp3d_dataset/x_view' # Directory to save extracted SuperPoint features
-img_data_path: '/home/aryan/Mp3d_dataset/x_view' # Directory to dataset images
+points_dir: '/data/datasets/aryan/x-view' # Directory to save extracted SuperPoint features
+img_data_path: '/data/datasets/aryan/x-view' # Directory to dataset images
 datasets: ["mp3d"]
 superpoint_model_path: './models/points_model.pth' # Path to SuperPoint Model
 data:

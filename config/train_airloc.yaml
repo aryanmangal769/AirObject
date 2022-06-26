@@ -1,7 +1,8 @@
-base_dir: "/home/aryan/Mp3d_dataset/x_view" # YT-VIS Train directory
+base_dir: "/data/datasets/aryan/x-view/images.pkl" # YT-VIS Train directory
 datasets: ["mp3d"]
 log_dir: './experiments/train_airloc' # Logging directory
 airobj_model_path: './models/gcn_model.pth' # Path to YT-VIS Finetuned Graph Attention Encoder
+airloc_model_path: ''
 netvlad_model_path: '../models/netvlad_model.pth'
 resume: False
 sum_iter: 
@@ -24,7 +25,7 @@ model:
       positive_margin: 1
       negative_margin: 0.2
       lambda_d: 1
-      epochs: 5
+      epochs: 25
       lr: 0.0001
       checkpoint: 500
   netvlad:

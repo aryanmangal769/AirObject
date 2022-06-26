@@ -42,6 +42,7 @@ def img_to_mask(img):
 
 base_dir ="/data/datasets/aryan/x-view"
 datasets = ["mp3d"]
+depth = True
 
 data = {}
 data["images"] = []
@@ -79,11 +80,14 @@ for dataset in datasets:
                 with open(points_data,'rb') as fp:
                     points = pickle.load(fp)
                 image.append(points)
+
+                depth = cv2.imread(depth_data,cv2.IMREAD_ANYDEPTH)
+                image.append(depth)
                     
                 image.append([room,rgb_data])
 
                 #Generating Object Points from it 
-                ann_masks, points, roomname = image[0], image[1], image[2]
+                ann_masks, points, depth, roomname = image[0], image[1], image[2] ,image[3]
                 
                 keypoints = points['points']
                 descriptors = points['point_descs']
@@ -92,17 +96,19 @@ for dataset in datasets:
                 image_objects = {}
                 image_objects['points'] = []
                 image_objects['descs'] = []
+                image_objects['depths'] = []
                 image_objects['ids'] = [] 
                 image_objects['room_image_name'] = roomname
 
                 for a in range(len(ann_masks)):
                     ann_mask = ann_masks[a]['mask']
                     object_filter = ann_mask[keypoints[:,0].T,keypoints[:,1].T]
-
                     np_obj_pts = keypoints[np.where(object_filter==1)[0]].numpy()
 
                     obj_id = str(ann_masks[a]['id']) 
-                    
+                    depth_value = np.mean(depth[np.where(ann_mask==1)])
+
+                    image_objects['depths'].append(depth_value)
                     image_objects['points'].append(keypoints[np.where(object_filter==1)[0]].float())
                     image_objects['descs'].append(descriptors[np.where(object_filter==1)[0]].float())
                     image_objects['ids'].append(obj_id) 

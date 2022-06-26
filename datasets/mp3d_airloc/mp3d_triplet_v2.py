@@ -60,7 +60,6 @@ class mp3d(Dataset):
         self.num_images = len(self.images)
 
         self.room = [self.images[i]["room_image_name"][0] for i in range(self.num_images)]
-        print(self.room)
         self.points = [self.images[i]["points"] for i in range(self.num_images)]
         self.descs = [self.images[i]["descs"] for i in range(self.num_images)]
         self.ids = [self.images[i]["ids"] for i in range(self.num_images)]

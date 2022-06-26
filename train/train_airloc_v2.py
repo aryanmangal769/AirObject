@@ -16,7 +16,7 @@ import numpy as np
 from scipy.spatial import Delaunay
 from tqdm import tqdm
 
-from model.build_model import build_gcn, build_netvlad, build_seqnet, build_airobj
+from model.build_model import build_gcn, build_netvlad, build_seqnet, build_airobj ,build_airloc
 from model.graph_models.gcn import GCN
 
 from datasets.mp3d_airloc.mp3d_triplet_v2 import mp3d
@@ -25,20 +25,6 @@ from datasets.utils.batch_collator import eval_custom_collate
 from statistics import mean
 
 import time
-
-
-def points_to_obj_desc(batch_objects,netvlad_model):
-    batch_decs = []
-    for image_objects in batch_objects:
-        #Takes only those objects whone no. points are more then rejection threshold
-        batch_points = []
-        for object_points in image_objects['descs']:
-            if object_points.shape[0]>5:
-                batch_points.append(object_points)
-                
-        object_desc = netvlad_model(batch_points)
-        batch_decs.append(object_desc)
-    return batch_decs
 
 def batch_gnn_processing(batch_obj,model,device):
     batch_features = []
@@ -49,6 +35,23 @@ def batch_gnn_processing(batch_obj,model,device):
         output= model(obj.to(device), adj.to(device))
         batch_features.append(output.squeeze())
     return torch.stack(batch_features)
+
+
+def points_to_obj_desc(batch_objects,netvlad_model,device):
+    batch_decs = []
+    for image_objects in batch_objects:
+        #Takes only those objects whone no. points are more then rejection threshold
+        batch_points = []
+        for object_points in image_objects['descs']:
+            if object_points.shape[0]>3:
+                batch_points.append(object_points.to(device))
+        #Just a temporary code we need to remove this kinf of images either form dataset or from pkl file
+        if len(batch_points) == 0:
+            print(image_objects['room_image_name'])
+            return 0
+        object_desc = netvlad_model(batch_points)
+        batch_decs.append(object_desc)
+    return batch_decs
 
 def accuracy(a,p,n):
     dist1 = (a - p).pow(2).sum(1)
@@ -79,7 +82,7 @@ def train(configs):
     nhid = train_config['hidden_dim']
     nclass = train_config['nout']
     
-    configs['num_gpu'] = [0,1]
+    configs['num_gpu'] = [2]
     configs['public_model'] = 0
     
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -100,8 +103,8 @@ def train(configs):
     train_sampler = SubsetRandomSampler(train_indices)
     valid_sampler = SubsetRandomSampler(val_indices)
 
-    # train_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 4,sampler=train_sampler)
-    # test_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 4,sampler=valid_sampler)
+    # train_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 16,sampler=train_sampler)
+    # test_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 12,sampler=valid_sampler)
         
     train_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,sampler=train_sampler)
     test_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,sampler=valid_sampler)
@@ -109,7 +112,7 @@ def train(configs):
     netvlad_model = build_netvlad(configs)
     netvlad_model.eval()
     
-    model = GCN(nfeat=nfeat, nhid=nhid, nclass=nclass, dropout=dropout).to(device)
+    model = build_airloc(configs)
     model.train()
 
     triplet_loss = torch.nn.TripletMarginLoss(margin=1.0, p=2)
@@ -126,13 +129,16 @@ def train(configs):
         train_accuracy = []
         for step, (anchor_pts, positive_pts, negative_pts) in enumerate(tqdm(train_loader)):
             
-            anchor_objs = points_to_obj_desc(anchor_pts,netvlad_model)
-            positive_objs = points_to_obj_desc(positive_pts,netvlad_model)
-            negative_objs = points_to_obj_desc(negative_pts,netvlad_model)
+            anchor_objs = points_to_obj_desc(anchor_pts,netvlad_model,device)
+            positive_objs = points_to_obj_desc(positive_pts,netvlad_model,device)
+            negative_objs = points_to_obj_desc(negative_pts,netvlad_model,device)
 
-            anchor_room = batch_gnn_processing(anchor_objs,model,device)
-            positive_room = batch_gnn_processing(positive_objs,model,device)
-            negative_room = batch_gnn_processing(negative_objs,model,device)
+            if anchor_objs==0 or positive_objs==0 or negative_objs==0:
+                continue
+
+            anchor_room = model(anchor_objs)
+            positive_room = model(positive_objs)
+            negative_room = model(negative_objs)
 
             loss = triplet_loss(anchor_room, positive_room, negative_room)
             
@@ -152,13 +158,13 @@ def train(configs):
         test_accuracy = []
         for step, (anchor_pts, positive_pts, negative_pts) in enumerate(tqdm(test_loader)):
             
-            anchor_objs = points_to_obj_desc(anchor_pts,netvlad_model)
-            positive_objs = points_to_obj_desc(positive_pts,netvlad_model)
-            negative_objs = points_to_obj_desc(negative_pts,netvlad_model)
-            
-            anchor_room = batch_gnn_processing(anchor_objs,model,device)
-            positive_room = batch_gnn_processing(positive_objs,model,device)
-            negative_room = batch_gnn_processing(negative_objs,model,device)
+            anchor_objs = points_to_obj_desc(anchor_pts,netvlad_model,device)
+            positive_objs = points_to_obj_desc(positive_pts,netvlad_model,device)
+            negative_objs = points_to_obj_desc(negative_pts,netvlad_model,device)
+
+            anchor_room = model(anchor_objs)
+            positive_room = model(positive_objs)
+            negative_room = model(negative_objs)
             
             loss = triplet_loss(anchor_room, positive_room, negative_room)
             
@@ -185,7 +191,7 @@ def main():
         "-g", "--gpu",
         dest = "gpu",
         type = int, 
-        default = 2
+        default = 1
     )
     args = parser.parse_args()
 
