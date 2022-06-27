@@ -52,6 +52,7 @@ Please download train.zip and annotations_train.json from the OVIS Dataset for I
 
 * [Google Drive](https://drive.google.com/drive/folders/1eE4lLKCbv54E866XBVce_ebh3oXYq99b)
 
+
 ## Pre-trained Models for Inference
 
 For inference, please download the models.zip file:
@@ -130,6 +131,11 @@ python './tracking/track.py' -c './config/tracking/track.yaml' -g 1
 ```
 
 ## Training
+To preprocess the dataset:
+
+```sh
+python './datasets/preprocess_with_depth.py' -c './config/preprocess_mp3d.yaml'
+```
 
 To train Graph Attention Encoder: (Please refer to `train_gcn.yaml`)
 
