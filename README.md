@@ -34,6 +34,7 @@ Simply run the following commands:
 ```bash
 conda create --channel conda-forge --name airobj --file ./AirObject/conda_requirements.txt
 conda activate airobj
+pip install kornia
 conda install pytorch==1.8.0 torchaudio==0.8.0 cudatoolkit=10.2 -c pytorch
 pip install pyyaml opencv-python scipy tqdm pycocotools
 # Editied this due to some error faced
