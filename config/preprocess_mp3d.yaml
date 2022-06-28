@@ -1,0 +1,18 @@
+base_dir: "/home/aryan/ws/Airloc_baseline/x_view" # YT-VIS Train directory
+datasets: ["mp3d"]
+pkl_path: "/home/aryan/ws/Airloc_baseline/AirObject/data_json/images_1.pkl"
+object_location: True 
+filter_images: True
+save_pkl: True
+camera:
+  fx: 960
+  fy: 960
+  cx: 960.5
+  cy: 540.4
+  width: 1920
+  height: 1080
+good_image:
+  occlusion_ratio: 0.1
+  min_objects: 5
+
+

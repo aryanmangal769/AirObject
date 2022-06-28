@@ -1,0 +1,45 @@
+base_dir: "/home/aryan/ws/Airloc_baseline/x_view" # YT-VIS Train directory
+datasets: ["mp3d"]
+ids: [0] 
+object_location: True 
+filter_images: False
+save_pkl: True
+airloc_model_path: '../models/airloc_model_gat_1.pth'
+netvlad_model_path: '../models/netvlad_model.pth'
+pkl_path: "/home/aryan/ws/Airloc_baseline/AirObject/data_pkl/ref_images_0123.pkl"
+ref_pkl_path: "/home/aryan/ws/Airloc_baseline/AirObject/ref_data/airloc_gat_1.pkl"
+camera:
+  fx: 960
+  fy: 960
+  cx: 960.5
+  cy: 540.4
+  width: 1920
+  height: 1080
+good_image:
+  occlusion_ratio: 0.1
+  min_objects: 5
+model:
+  airloc:
+    descriptor_dim: 8192
+    hidden_dim: 4096
+    graph_model: gat
+    nout: 2048
+    points_encoder_dims: [2, 4, 8, 16]
+    dropout: 0.8  #0.5
+    alpha: 0.2
+    nheads: 4  #8
+    temporal_encoder_dim: 2048
+    temporal_encoder_out_dim: 2048
+    temporal_kernel_size: 1
+    train:
+      seqlen: 4
+      batch_size: 16
+      positive_margin: 1
+      negative_margin: 0.2
+      lambda_d: 1
+      epochs: 25
+      lr: 0.0001
+      checkpoint: 500
+  netvlad:
+    descriptor_dim: 256
+    vlad_numc: 32
