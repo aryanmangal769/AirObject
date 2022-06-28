@@ -1,33 +1,23 @@
 #!/usr/bin/env python3
 import torch
 import torch.nn as nn
-<<<<<<< HEAD
 import math
-=======
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
 
 class RoomDescriptor(nn.Module):
   def __init__(self, config):
     super(RoomDescriptor, self).__init__()
 
-<<<<<<< HEAD
     graph_model = config['graph_model']
-=======
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
     nfeat = config['descriptor_dim']
     nhid = config['hidden_dim']
     dropout = config['dropout']
     nheads = config['nheads']
     nout = config['nout']
-<<<<<<< HEAD
 
     if graph_model == "gat":
       self.gnn = GAT(nfeat, nhid, nout, dropout)
     elif graph_model == "gcn":
       self.gnn = GCN(nfeat, nhid, nout, dropout)
-=======
-    self.gcn = GCN(nfeat, nhid, nout, dropout)
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
 
   def forward(self, batch_descs):
     '''
@@ -44,23 +34,15 @@ class RoomDescriptor(nn.Module):
     for obj in batch_descs:
         nodes = torch.tensor(obj.shape[0])
         adj = torch.ones(nodes,nodes,device = obj.get_device())
-<<<<<<< HEAD
         output= self.gnn(obj, adj)
         batch_features.append(output.squeeze())
     
     batch_features = torch.stack(batch_features)  
-=======
-        output= self.gcn(obj, adj)
-        batch_features.append(output.squeeze())
-    
-    batch_features = torch.stack(batch_features)
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
     batch_features = nn.functional.normalize(batch_features, p=2, dim=-1)
 
     return batch_features
 
 
-<<<<<<< HEAD
 class GAT(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout=0.5, alpha=0.2, nheads=8):
         '''
@@ -107,8 +89,6 @@ class GraphAttn(nn.Module):
 
 
 
-=======
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
 class GCN(nn.Module):
     '''
     GCN: Graph Convolutional Network, ICLR 2017

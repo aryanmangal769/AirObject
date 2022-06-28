@@ -46,11 +46,7 @@ def points_to_obj_desc(batch_objects,netvlad_model,device):
             if object_points.shape[0]>3:
                 batch_points.append(object_points.to(device))
         #Just a temporary code we need to remove this kinf of images either form dataset or from pkl file
-<<<<<<< HEAD
         if len(batch_points) <= 1:
-=======
-        if len(batch_points) == 0:
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
             print(image_objects['room_image_name'])
             return 0
         object_desc = netvlad_model(batch_points)
@@ -69,11 +65,7 @@ def train(configs):
     base_dir = configs['base_dir']
     datasets = configs['datasets']
     log_dir = configs['log_dir']
-<<<<<<< HEAD
     model_save_dir = configs["airloc_save_path"]
-=======
-    
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
 
     ## Train config
     train_config = configs['model']['airloc']
@@ -90,11 +82,7 @@ def train(configs):
     nhid = train_config['hidden_dim']
     nclass = train_config['nout']
     
-<<<<<<< HEAD
     configs['num_gpu'] = [1]
-=======
-    configs['num_gpu'] = [2]
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
     configs['public_model'] = 0
     
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -115,13 +103,8 @@ def train(configs):
     train_sampler = SubsetRandomSampler(train_indices)
     valid_sampler = SubsetRandomSampler(val_indices)
 
-<<<<<<< HEAD
     # train_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 8,sampler=train_sampler)
     # test_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 8,sampler=valid_sampler)
-=======
-    # train_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 16,sampler=train_sampler)
-    # test_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,num_workers = 12,sampler=valid_sampler)
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
         
     train_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,sampler=train_sampler)
     test_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, collate_fn=eval_custom_collate,sampler=valid_sampler)
@@ -133,11 +116,7 @@ def train(configs):
     model.train()
 
     triplet_loss = torch.nn.TripletMarginLoss(margin=1.0, p=2)
-<<<<<<< HEAD
     optimizer = torch.optim.RMSprop(model.parameters(), lr=lr)
-=======
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
     
     writer = SummaryWriter(log_dir=os.path.join(log_dir, datetime.now().strftime('%b%d_%H-%M-%S')+'_airobj'))
     
@@ -183,12 +162,9 @@ def train(configs):
             positive_objs = points_to_obj_desc(positive_pts,netvlad_model,device)
             negative_objs = points_to_obj_desc(negative_pts,netvlad_model,device)
 
-<<<<<<< HEAD
             if anchor_objs==0 or positive_objs==0 or negative_objs==0:
                 continue
 
-=======
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
             anchor_room = model(anchor_objs)
             positive_room = model(positive_objs)
             negative_room = model(negative_objs)
@@ -203,12 +179,8 @@ def train(configs):
             writer.add_scalar('Train/Loss', loss, sum_iter)
         
         print("Test_accuracy : ", mean(test_accuracy) )
-<<<<<<< HEAD
 
         torch.save(model.state_dict(), model_save_dir)
-=======
-    
->>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
     writer.close()
 
 def main():
