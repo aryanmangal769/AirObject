@@ -1,21 +1,40 @@
+<<<<<<< HEAD
+base_dir: "/home/aryan/ws/Airloc_baseline/AirObject/data_pkl/images_1.pkl" # YT-VIS Train directory
+datasets: ["mp3d"]
+log_dir: './experiments/train_airloc' # Logging directory
+airloc_model_path: ''
+netvlad_model_path: '../models/netvlad_model.pth'
+airloc_save_path: '../models/airloc_model_gat_1.pth'
+=======
 base_dir: "/data/datasets/aryan/x-view/images.pkl" # YT-VIS Train directory
 datasets: ["mp3d"]
 log_dir: './experiments/train_airloc' # Logging directory
 airobj_model_path: './models/gcn_model.pth' # Path to YT-VIS Finetuned Graph Attention Encoder
 airloc_model_path: ''
 netvlad_model_path: '../models/netvlad_model.pth'
+>>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
 resume: False
 sum_iter: 
 optimizer_path: ''
 model:
   airloc:
+<<<<<<< HEAD
+    graph_model: "gat" #gcn
+=======
+>>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
     descriptor_dim: 8192
     hidden_dim: 4096
     nout: 2048
     points_encoder_dims: [2, 4, 8, 16]
+<<<<<<< HEAD
+    dropout: 0.5  #0.5
+    alpha: 0.2
+    nheads: 8  #8
+=======
     dropout: 0.5
     alpha: 0.2
     nheads: 8
+>>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
     temporal_encoder_dim: 2048
     temporal_encoder_out_dim: 2048
     temporal_kernel_size: 1
@@ -26,7 +45,11 @@ model:
       negative_margin: 0.2
       lambda_d: 1
       epochs: 25
+<<<<<<< HEAD
+      lr: 0.0001 #0.1 #0.0001
+=======
       lr: 0.0001
+>>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
       checkpoint: 500
   netvlad:
     descriptor_dim: 256

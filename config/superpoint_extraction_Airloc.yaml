@@ -7,5 +7,5 @@ data:
 model:
   superpoint:
     cell : 8
-    detection_threshold: 0.2
+    detection_threshold: 0.15
     batch_size: 1

@@ -86,5 +86,9 @@ class mp3d(Dataset):
             return anchor,positive,negative
         
         else:
+<<<<<<< HEAD
+            return [anchor]
+=======
             return anchor
+>>>>>>> 0dcc9a4c213a4057ad7f9b504d4baabc1499378b
 

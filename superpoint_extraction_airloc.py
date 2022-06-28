@@ -24,7 +24,7 @@ def inference(configs):
     superpoint_model_config = configs['model']['superpoint']
     detection_threshold = superpoint_model_config['detection_threshold']
     ## others
-    configs['num_gpu'] = [0]
+    configs['num_gpu'] = [0,1]
     configs['public_model'] = 0
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")

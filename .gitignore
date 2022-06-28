@@ -12,4 +12,5 @@ prototyping/
 
 experiments/
 logs/
-data_json/
+data_pkl/
+ref_data/
